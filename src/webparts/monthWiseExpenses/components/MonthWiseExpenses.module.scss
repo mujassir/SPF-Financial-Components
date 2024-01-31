@@ -1,0 +1,32 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+.strippedTable {
+  border-collapse: collapse;
+  width: 100%;
+
+  tr {
+    border-bottom: 1px solid #f1f1f1;
+  }
+
+  th,
+  td {
+    padding: 5px 10px;
+  }
+
+  tbody td {
+    text-align: left;
+  }
+}
+
+.parentRow {
+  text-align: left;
+  font-weight: bold;
+}
+
+.listLevel1 {
+  background-color: #f1f1f1;
+}
+
+.listLevel0 {
+  background-color: #d1d1d1 !important;
+}

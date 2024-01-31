@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": false,
+    "nodeVersion": "20.10.0",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.18.2",
+    "libraryName": "spfx-financial-components",
+    "libraryId": "4ad493b8-9e6f-4fef-9a3b-bc97d8bcb4db",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "spfx-financial-components",
+    "solutionShortDescription": "spfx-financial-components description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

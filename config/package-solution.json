@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfx-financial-components-client-side-solution",
+    "id": "4ad493b8-9e6f-4fef-9a3b-bc97d8bcb4db",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "spfx-financial-components description"
+      },
+      "longDescription": {
+        "default": "spfx-financial-components description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "spfx-financial-components Feature",
+        "description": "The feature that activates elements of the spfx-financial-components solution.",
+        "id": "e52d7022-e257-4762-a4da-798a8d424bcb",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/spfx-financial-components.sppkg"
+  }
+}

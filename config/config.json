@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "month-wise-expenses-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/monthWiseExpenses/MonthWiseExpensesWebPart.js",
+          "manifest": "./src/webparts/monthWiseExpenses/MonthWiseExpensesWebPart.manifest.json"
+        }
+      ]
+    },
+    "expense-summary-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/expenseSummary/ExpenseSummaryWebPart.js",
+          "manifest": "./src/webparts/expenseSummary/ExpenseSummaryWebPart.manifest.json"
+        }
+      ]
+    },
+    "daily-expense-detail-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/dailyExpenseDetail/DailyExpenseDetailWebPart.js",
+          "manifest": "./src/webparts/dailyExpenseDetail/DailyExpenseDetailWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "MonthWiseExpensesWebPartStrings": "lib/webparts/monthWiseExpenses/loc/{locale}.js",
+    "ExpenseSummaryWebPartStrings": "lib/webparts/expenseSummary/loc/{locale}.js",
+    "DailyExpenseDetailWebPartStrings": "lib/webparts/dailyExpenseDetail/loc/{locale}.js",
+    "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js"
+  }
+}
