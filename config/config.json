@@ -25,6 +25,14 @@
           "manifest": "./src/webparts/dailyExpenseDetail/DailyExpenseDetailWebPart.manifest.json"
         }
       ]
+    },
+    "expense-detail-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/expenseDetail/ExpenseDetailWebPart.js",
+          "manifest": "./src/webparts/expenseDetail/ExpenseDetailWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
@@ -32,6 +40,7 @@
     "MonthWiseExpensesWebPartStrings": "lib/webparts/monthWiseExpenses/loc/{locale}.js",
     "ExpenseSummaryWebPartStrings": "lib/webparts/expenseSummary/loc/{locale}.js",
     "DailyExpenseDetailWebPartStrings": "lib/webparts/dailyExpenseDetail/loc/{locale}.js",
-    "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js"
+    "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js",
+    "ExpenseDetailWebPartStrings": "lib/webparts/expenseDetail/loc/{locale}.js"
   }
 }
