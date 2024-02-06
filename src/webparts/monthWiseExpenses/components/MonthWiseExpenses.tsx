@@ -34,13 +34,13 @@ export default class MonthWiseExpenses extends React.Component<
     let listTitle = "";
 
     if (this.props.listUrl) listUrl = this.props.listUrl;
-    if (!listUrl || listUrl.length == 0) {
+    if (!listUrl || listUrl.length === 0) {
       this.setState({ errorMessage: "Please add SPFX WEB URL." });
       return;
     }
 
     if (this.props.lists) listTitle = this.props.lists.title;
-    if (!listTitle || listTitle.length == 0) {
+    if (!listTitle || listTitle.length === 0) {
       this.setState({ errorMessage: "Please select a list first." });
       return;
     }
@@ -86,8 +86,8 @@ export default class MonthWiseExpenses extends React.Component<
     }
   }
 
-  public componentDidMount(): void {
-    this.getLast12MonthListData();
+  public async componentDidMount(): Promise<void> {
+    await this.getLast12MonthListData();
   }
 
   public render(): React.ReactElement<IMonthWiseExpensesProps> {
@@ -160,7 +160,7 @@ export default class MonthWiseExpenses extends React.Component<
         monthsList[i][head] = totalForHead;
         totalForMonth += totalForHead;
       }
-      monthsList[i]["Total"] = totalForMonth;
+      monthsList[i].Total = totalForMonth;
     }
 
     return (
@@ -190,7 +190,7 @@ export default class MonthWiseExpenses extends React.Component<
                   </td>
                 ))}
                 <td style={{ textAlign: "center" }}>
-                  {month["Total"].toFixed(2)}{" "}
+                  {month.Total.toFixed(2)}{" "}
                 </td>
               </tr>
             ))}
@@ -205,7 +205,7 @@ export default class MonthWiseExpenses extends React.Component<
               ))}
               <td style={{ textAlign: "center" }}>
                 {monthsList
-                  .reduce((sum, month) => sum + month["Total"], 0)
+                  .reduce((sum, month) => sum + month.Total, 0)
                   .toFixed(2)}
               </td>
             </tr>

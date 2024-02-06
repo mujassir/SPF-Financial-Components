@@ -30,6 +30,18 @@ export default class ExpenseDetail extends React.Component<IExpenseDetailProps, 
       groupByFields: [],
     };
   }
+  
+  async componentDidMount() {
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), 1); // First day of this month
+    const endDate = today.toISOString(); // Today's date
+    this.setState({ startDate: startDate.toISOString(), endDate: endDate });
+
+    setTimeout(() => {
+      this.getListData()
+    }, 200);
+  }
+  
   private handleDateChange = (date: Date | string, field: 'startDate' | 'endDate'): void => {
     if (typeof date === 'string') date = new Date(date);
     switch (field) {
@@ -45,14 +57,14 @@ export default class ExpenseDetail extends React.Component<IExpenseDetailProps, 
   private async getListData(): Promise<void> {
     let listUrl = '';
     if (this.props.listUrl) listUrl = this.props.listUrl;
-    if (!listUrl || listUrl.length == 0) {
+    if (!listUrl || listUrl.length === 0) {
       this.setState({ errorMessage: 'Please add SPFX WEB URL.' });
       return;
     }
 
     let listTitle = '';
     if (this.props.lists) listTitle = this.props.lists.title;
-    if (!listTitle || listTitle.length == 0) {
+    if (!listTitle || listTitle.length === 0) {
       this.setState({ errorMessage: 'Please select a list first.' });
       return;
     }
@@ -102,7 +114,7 @@ export default class ExpenseDetail extends React.Component<IExpenseDetailProps, 
       }
       if (this.props.orderedListColumns) {
 
-        const complexFields = allFields.filter((p: any) => this.props.orderedListColumns.indexOf(p.Title) > -1 && p.FieldTypeKind == 20);
+        const complexFields = allFields.filter((p: any) => this.props.orderedListColumns.indexOf(p.Title) > -1 && p.FieldTypeKind === 20);
         complexFieldNamesArray = complexFields.map((p: any) => p.InternalName);
         for (let index = 0; index < internalNamesArray.length; index++) {
           if (complexFieldNamesArray.indexOf(internalNamesArray[index]) > -1)
@@ -147,12 +159,20 @@ export default class ExpenseDetail extends React.Component<IExpenseDetailProps, 
     }
   }
   public render(): React.ReactElement<IExpenseDetailProps> {
+    const { startDate, endDate } = this.state
     return (
       <Box>
         {this.state.errorMessage && <Alert severity="error"> {this.state.errorMessage}</Alert>}
 
         <div>
-          <h2>Expense Detail</h2>
+          <h2>
+            Expense Detail
+            &nbsp; <small>
+              ({startDate && (new Date(startDate)).toDateString()}
+              &nbsp; to &nbsp;
+              {endDate && (new Date(endDate)).toDateString()})
+            </small>
+          </h2>
         </div>
 
         {this.renderFilter()}
@@ -178,7 +198,7 @@ export default class ExpenseDetail extends React.Component<IExpenseDetailProps, 
       </Grid>
     );
   }
-  
+
   private renderDateTextField(label: string, field: 'startDate' | 'endDate'): React.ReactNode {
     return (
       <TextField

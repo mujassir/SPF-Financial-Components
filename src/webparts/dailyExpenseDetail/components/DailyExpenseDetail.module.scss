@@ -1,34 +1,32 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
-.dailyExpenseDetail {
-  overflow: hidden;
-  padding: 1em;
-  color: "[theme:bodyText, default: #323130]";
-  color: var(--bodyText);
-  &.teams {
-    font-family: $ms-font-family-fallbacks;
-  }
-}
-
-.welcome {
-  text-align: center;
-}
-
-.welcomeImage {
+.strippedTable {
+  border-collapse: collapse;
   width: 100%;
-  max-width: 420px;
+
+  tr {
+    border-bottom: 1px solid #f1f1f1;
+  }
+
+  th,
+  td {
+    padding: 5px 10px;
+  }
+
+  tbody td {
+    text-align: left;
+  }
 }
 
-.links {
-  a {
-    text-decoration: none;
-    color: "[theme:link, default:#03787c]";
-    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
+.parentRow {
+  text-align: left;
+  font-weight: bold;
+}
 
-    &:hover {
-      text-decoration: underline;
-      color: "[theme:linkHovered, default: #014446]";
-      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
-    }
-  }
+.listLevel1 {
+  background-color: #f1f1f1;
+}
+
+.listLevel0 {
+  background-color: #d1d1d1 !important;
 }
