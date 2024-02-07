@@ -56,9 +56,8 @@ export default class MonthWiseExpenses extends React.Component<
         0
       );
 
-      const monthlyItemsEndpoint = `${listUrl}/_api/web/lists/getbytitle('${listTitle}')/items?$filter=Date ge '${startDate.toISOString()}' and Date le '${endDate.toISOString()}'&$top=${
-        Constants.Defaults.MaxPageSize
-      }`;
+      const monthlyItemsEndpoint = `${listUrl}/_api/web/lists/getbytitle('${listTitle}')/items?$filter=Date ge '${startDate.toISOString()}' and Date le '${endDate.toISOString()}'&$top=${Constants.Defaults.MaxPageSize
+        }`;
       const monthlyItemsResponse = await this.props.context.spHttpClient.get(
         monthlyItemsEndpoint,
         SPHttpClient.configurations.v1
@@ -70,6 +69,7 @@ export default class MonthWiseExpenses extends React.Component<
         startDate,
         endDate
       );
+
       const accountHeads: any = monthlyItems.value.map(
         (e: any) => e.AccountHead
       );
@@ -109,12 +109,14 @@ export default class MonthWiseExpenses extends React.Component<
       const startOfMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
+        0, 0, 0
       );
       const endOfMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
+        23, 59, 59
       );
 
       months.push({
@@ -142,12 +144,13 @@ export default class MonthWiseExpenses extends React.Component<
     if (data.length === 0) {
       return "";
     }
+
     for (let i = 0; i < monthsList.length; i++) {
       const ele: any = monthsList[i];
       const monthData = data.filter(
         (row: any) =>
-          new Date(row.Date) > new Date(ele.start) &&
-          new Date(row.Date) < new Date(ele.end)
+          new Date(row.Date) >= new Date(ele.start) &&
+          new Date(row.Date) <= new Date(ele.end)
       );
       let totalForMonth = 0;
 
