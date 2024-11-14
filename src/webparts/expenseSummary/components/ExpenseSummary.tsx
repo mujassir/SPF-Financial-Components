@@ -220,6 +220,7 @@ export default class ExpenseSummary extends React.Component<IExpenseSummaryProps
     const groupByFields = this.state.groupByFields.map((e: { name: string }) => e.name);
 
     const groupTree = this.createTreeView(items, groupByFields)
+    console.log(groupTree);
 
     const tableView = this.renderTable(groupTree)
     return (tableView)
@@ -234,10 +235,9 @@ export default class ExpenseSummary extends React.Component<IExpenseSummaryProps
       groupByColumns.forEach(column => {
         const key = record[column];
         let childNode: any = currentNode.children.filter((child: any) => child.name === key)[0]
-        const amount = dataset.filter(e => e[column] === key).map(e => e.Debit).reduce((partialSum, a) => partialSum + a, 0)?.toFixed(2)
 
         if (!childNode) {
-          childNode = { name: key, parent: column, amount, children: [] };
+          childNode = { name: key, parent: column, children: [] };
           currentNode.children.push(childNode);
         }
         currentNode = childNode;
@@ -287,6 +287,7 @@ export default class ExpenseSummary extends React.Component<IExpenseSummaryProps
     return data.map((item: any,) => {
       if (item?.children) {
         const parent = this.getGroupTitle(titleToInternalNameMap, item.parent)
+        const amount = this.calculateAmount(item, 'Debit')
         return (
           <>
             <tr>
@@ -296,7 +297,7 @@ export default class ExpenseSummary extends React.Component<IExpenseSummaryProps
                 <strong>{item.name || ''}</strong>
               </td>
               <td style={{ textAlign: 'right' }}>
-                {`${item.amount}`}
+                {`${amount.toFixed(2)}`}
               </td>
             </tr>
             {this.renderTableRows(item.children, level + 1)}
@@ -305,6 +306,19 @@ export default class ExpenseSummary extends React.Component<IExpenseSummaryProps
       }
       return null
     });
+  }
+
+  private calculateAmount(item: any, column: string): number {
+    let totalAmount = 0
+    if (item[column]) {
+      totalAmount += item[column]
+    };
+    if (item?.children) {
+      item.children.forEach((e: any) => {
+        totalAmount += this.calculateAmount(e, column)
+      });
+    }
+    return totalAmount;
   }
 
 }

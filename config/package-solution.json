@@ -3,7 +3,7 @@
   "solution": {
     "name": "SPFX Financial Components",
     "id": "4ad493b8-9e6f-4fef-9a3b-bc97d8bcb4db",
-    "version": "1.0.0.0",
+    "version": "1.0.2.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,

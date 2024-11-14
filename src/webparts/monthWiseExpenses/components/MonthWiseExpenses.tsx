@@ -4,6 +4,8 @@ import { Alert, Box } from "@mui/material";
 import { SPHttpClient } from "@microsoft/sp-http";
 import styles from "./MonthWiseExpenses.module.scss";
 import Constants from "../common/constants";
+import Button from '@mui/material/Button';
+import jsPDF from "jspdf";
 
 export default class MonthWiseExpenses extends React.Component<
   IMonthWiseExpensesProps,
@@ -48,11 +50,11 @@ export default class MonthWiseExpenses extends React.Component<
     try {
       const currentDate = new Date();
       const startDate = new Date(currentDate.toISOString());
-      startDate.setMonth(currentDate.getMonth() - 12);
+      startDate.setMonth(currentDate.getMonth() - 11);
       startDate.setDate(1);
       const endDate = new Date(
         currentDate.getFullYear(),
-        currentDate.getMonth() + 2,
+        currentDate.getMonth() + 1,
         0
       );
 
@@ -89,14 +91,14 @@ export default class MonthWiseExpenses extends React.Component<
   public async componentDidMount(): Promise<void> {
     await this.getLast12MonthListData();
   }
-
   public render(): React.ReactElement<IMonthWiseExpensesProps> {
+    const layout: string = 'h';
     return (
       <Box>
         {this.state.errorMessage && (
           <Alert severity="error"> {this.state.errorMessage}</Alert>
         )}
-        {this.renderMonthWiseExpenseView()}
+        {layout === 'v' ? this.renderMonthWiseExpenseVerticalView : this.renderMonthWiseExpenseHorizentalView()}
       </Box>
     );
   }
@@ -119,14 +121,11 @@ export default class MonthWiseExpenses extends React.Component<
         23, 59, 59
       );
 
-      months.push({
+      months.unshift({
         start: startOfMonth.toISOString(),
         end: endOfMonth.toISOString(),
         shortName: startOfMonth.toLocaleString("default", { month: "short" }),
         year: startOfMonth.getFullYear(),
-        densibleAmount: 0,
-        webTacklesAmount: 0,
-        delivererAmount: 0,
       });
 
       // Move to the next month
@@ -136,7 +135,154 @@ export default class MonthWiseExpenses extends React.Component<
     return months;
   }
 
-  private renderMonthWiseExpenseView(): React.ReactNode {
+  private renderMonthWiseExpenseHorizentalView(): React.ReactNode {
+    const data = this.state.monthlyItems;
+    const accountHeads = this.state.accountHeads;
+
+    const monthsList: any[] = this.state.monthsList;
+    if (data.length === 0) {
+      return "";
+    }
+
+    let totalAccWiseBalances: any = {
+      totalDebit: 0,
+      totalCredit: 0,
+    }
+
+    for (let i = 0; i < monthsList.length; i++) {
+      const ele: any = monthsList[i];
+      const monthData = data.filter(
+        (row: any) =>
+          new Date(row.Date) >= new Date(ele.start) &&
+          new Date(row.Date) <= new Date(ele.end)
+      );
+      let totalDebit = 0;
+      let totalCredit = 0;
+
+      for (let accInd = 0; accInd < accountHeads.length; accInd++) {
+        const head = accountHeads[accInd];
+        const accDebit = monthData
+          .filter((row: any) => row.AccountHead === head)
+          .map((e: any) => e.Debit)
+          .reduce((sum, current) => sum + current, 0);
+        monthsList[i][head] = accDebit;
+
+        const accCredit = monthData
+          .filter((row: any) => row.AccountHead === head)
+          .map((e: any) => e.Credit)
+          .reduce((sum, current) => sum + current, 0);
+        monthsList[i][head] = { debit: accDebit, credit: accCredit };
+        totalDebit += accDebit;
+        totalCredit += accCredit;
+        if (!totalAccWiseBalances[head]) totalAccWiseBalances[head] = { credit: 0, debit: 0 }
+        totalAccWiseBalances[head].credit += accCredit
+        totalAccWiseBalances[head].debit += accDebit
+        totalAccWiseBalances.totalCredit += accCredit
+        totalAccWiseBalances.totalDebit += accDebit
+      }
+      monthsList[i].total = { debit: totalDebit, credit: totalCredit };;
+    }
+
+    return (
+      <div style={{ overflow: 'auto' }}>
+        <h2>
+          Month Wise Expenses &nbsp; &nbsp;
+          <Button className={`d-print-none`} variant="outlined" onClick={() => this.generatePDF()}>Generate PDF</Button>
+        </h2>
+        <table id="monthWiseExpenseTable" className={`${styles.strippedTable} ${styles.gridTable}`}>
+          <thead>
+            <tr>
+              <th colSpan={2}>Company</th>
+              {monthsList.map((month: any) => (
+                <th style={{ whiteSpace: "nowrap" }}>
+                  {month.shortName} {month.year}
+                </th>
+              ))}
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {accountHeads.map((field: string) => (
+              <React.Fragment key={field}>
+                <tr>
+                  <th rowSpan={3}>{field}</th>
+                  <td>Credit</td>
+                  {monthsList.map((month: any) => (
+                    <td>
+                      {month[field].credit.toFixed(2)}
+                    </td>
+                  ))}
+                  <td>
+                    {totalAccWiseBalances[field].credit.toFixed(2)}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Debit</td>
+                  {monthsList.map((month: any) => (
+                    <td>
+                      {month[field].debit.toFixed(2)}
+                    </td>
+                  ))}
+                  <td>
+                    {totalAccWiseBalances[field].debit.toFixed(2)}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Balance</td>
+                  {monthsList.map((month: any) => (
+                    <th>
+                      {(month[field].credit - month[field].debit).toFixed(2)}
+                    </th>
+                  ))}
+                  <th>
+                    {(totalAccWiseBalances[field].credit - totalAccWiseBalances[field].debit).toFixed(2)}
+                  </th>
+                </tr>
+                <tr><td colSpan={1000}>&nbsp;</td></tr>
+              </React.Fragment>
+            ))}
+
+            <tr>
+              <th rowSpan={3}>Total</th>
+              <td>Credit</td>
+              {monthsList.map((month: any) => (
+                <td>
+                  {month.total.credit.toFixed(2)}
+                </td>
+              ))}
+              <td>
+                {totalAccWiseBalances.totalCredit.toFixed(2)}
+              </td>
+            </tr>
+            <tr>
+              <td>Debit</td>
+              {monthsList.map((month: any) => (
+                <td>
+                  {month.total.debit.toFixed(2)}
+                </td>
+              ))}
+              <td>
+                {totalAccWiseBalances.totalDebit.toFixed(2)}
+              </td>
+            </tr>
+            <tr>
+              <td>Balance</td>
+              {monthsList.map((month: any) => (
+                <th>
+                  {(month.total.credit - month.total.debit).toFixed(2)}
+                </th>
+              ))}
+              <th>
+                {(totalAccWiseBalances.totalCredit - totalAccWiseBalances.totalDebit).toFixed(2)}
+              </th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  private renderMonthWiseExpenseVerticalView(): React.ReactNode {
     const data = this.state.monthlyItems;
     const accountHeads = this.state.accountHeads;
 
@@ -152,33 +298,54 @@ export default class MonthWiseExpenses extends React.Component<
           new Date(row.Date) >= new Date(ele.start) &&
           new Date(row.Date) <= new Date(ele.end)
       );
-      let totalForMonth = 0;
+      let totalDebit = 0;
+      let totalCredit = 0;
 
       for (let accInd = 0; accInd < accountHeads.length; accInd++) {
         const head = accountHeads[accInd];
-        const totalForHead = monthData
+        const accDebit = monthData
           .filter((row: any) => row.AccountHead === head)
           .map((e: any) => e.Debit)
           .reduce((sum, current) => sum + current, 0);
-        monthsList[i][head] = totalForHead;
-        totalForMonth += totalForHead;
+        monthsList[i][head] = accDebit;
+
+        const accCredit = monthData
+          .filter((row: any) => row.AccountHead === head)
+          .map((e: any) => e.Credit)
+          .reduce((sum, current) => sum + current, 0);
+        monthsList[i][head] = { debit: accDebit, credit: accCredit };
+        totalDebit += accDebit;
+        totalCredit += accDebit;
       }
-      monthsList[i].Total = totalForMonth;
+      monthsList[i].Total = { debit: totalDebit, credit: totalCredit };;
     }
 
     return (
       <div>
         <h2>Month Wise Expenses</h2>
-        <table className={styles.strippedTable}>
+        <table className={`${styles.strippedTable} ${styles.gridTable}`}>
           <thead>
             <tr>
               <th style={{ textAlign: "left" }}>Month</th>
               {accountHeads.map((field: string) => (
-                <th style={{ width: "76px" }} key={field}>
+                <th colSpan={3} style={{ width: "76px" }} key={field}>
                   {field}
                 </th>
               ))}
-              <th style={{ textAlign: "center" }}>Total</th>
+              <th colSpan={3} style={{ textAlign: "center" }}>Total</th>
+            </tr>
+            <tr>
+              <th>&nbsp;</th>
+              {accountHeads.map((field: string) => (
+                <React.Fragment key={field}>
+                  <th>Credit</th>
+                  <th>Debit</th>
+                  <th>Balance</th>
+                </React.Fragment>
+              ))}
+              <th>Credit</th>
+              <th>Debit</th>
+              <th>Balance</th>
             </tr>
           </thead>
           <tbody>
@@ -188,16 +355,30 @@ export default class MonthWiseExpenses extends React.Component<
                   {month.shortName} {month.year}
                 </td>
                 {accountHeads.map((field: string) => (
-                  <td style={{ textAlign: "center" }} key={field}>
-                    {month[field].toFixed(2)}
-                  </td>
+                  <React.Fragment key={field}>
+                    <td style={{ textAlign: "center" }} key={field}>
+                      {month[field].credit.toFixed(2)}
+                    </td>
+                    <td style={{ textAlign: "center" }} key={field}>
+                      {month[field].debit.toFixed(2)}
+                    </td>
+                    <td style={{ textAlign: "center" }} key={field}>
+                      {(month[field].credit - month[field].debit).toFixed(2)}
+                    </td>
+                  </React.Fragment>
                 ))}
                 <td style={{ textAlign: "center" }}>
-                  {month.Total.toFixed(2)}{" "}
+                  {month.Total.credit.toFixed(2)}
+                </td>
+                <td style={{ textAlign: "center" }}>
+                  {month.Total.debit.toFixed(2)}
+                </td>
+                <td style={{ textAlign: "center" }}>
+                  {(month.Total.credit - month.Total.debit).toFixed(2)}
                 </td>
               </tr>
             ))}
-            <tr>
+            {/* <tr>
               <td>Total</td>
               {accountHeads.map((field: string) => (
                 <td style={{ textAlign: "center" }} key={field}>
@@ -211,10 +392,41 @@ export default class MonthWiseExpenses extends React.Component<
                   .reduce((sum, month) => sum + month.Total, 0)
                   .toFixed(2)}
               </td>
-            </tr>
+            </tr> */}
           </tbody>
         </table>
       </div>
     );
   }
+
+  private generatePDF = async () => {
+    try {
+      let htmlTableElement = document.getElementById('monthWiseExpenseTable');
+      if (!htmlTableElement) return
+
+      const contentWidth = htmlTableElement.scrollWidth;
+      const contentHeight = htmlTableElement.scrollHeight;
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [contentWidth + 40, contentHeight + 40]
+      });
+      doc.html(htmlTableElement, {
+        callback: function (doc) {
+          doc.save(`Month Wise Expenses - ${(new Date()).toDateString()}.pdf`);
+        },
+        x: 20,
+        y: 20,
+        html2canvas: {
+          scale: 1,
+          width: contentWidth,
+          windowWidth: contentWidth
+        },
+        autoPaging: 'text'
+      });
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
 }
